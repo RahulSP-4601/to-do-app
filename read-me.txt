@@ -1,0 +1,23 @@
+To-Do Website
+
+Languages Used
+
+    * Python
+    * JavaScript
+    * HTML
+    * CSS
+
+Micro Web Framework
+
+    * Flask
+
+How to Run This Website
+
+    * Download Python: https://www.python.org/downloads/
+    * Download the Source Code
+    * Navigate to the Project Directory:
+    * Open your terminal and change the directory to where the source code is saved. 
+    * Type "python3 app.py"
+    * Copy Paste the server link for example for my laptop the link is : http://127.0.0.1:5000
+
+To Know me more kindly visit my Portfolio: https://rahulsp-4601.github.io/Rahul_Portfolio.github.io/

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <title>My To-Do List App</title>
+    <style>
+        .strikethrough {
+            text-decoration: line-through;
+        }
+        .checkbox {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: rgb(0, 0, 0);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .task-entry-box, .box {
+            margin: 20px;
+        }
+        .filter-container {
+            margin-top: 20px;
+        }
+        .filter-container a, .filter-container .clear-completed {
+            margin-right: 10px;
+        }
+        .theme-toggle-btn {
+            cursor: pointer;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-image">
+        <div class="header-content">
+            <div class="header-container">
+                <h1 class="header-title">T O D O</h1>
+                <button id="theme-toggle" class="theme-toggle-btn">
+                    <i id="theme-toggle-icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="task-entry-box">
+            <form method="POST" action="{{ url_for('add_task') }}">
+                <button type="submit" class="add-btn"></button>
+                <input type="text" class="gradient-text" id="newTask" name="newTask" placeholder="Currently typing" required>
+            </form>
+        </div>
+
+        <div class="box">
+            <ul>
+                {% for task in tasks %}
+                    <li id="task-{{ loop.index0 }}" class="{% if task.completed %}strikethrough{% endif %}">
+                        <form method="POST" action="{{ url_for('toggle_task', task_index=loop.index0) }}" style="display:inline;">
+                            <input type="checkbox" class="checkbox" id="taskCheckbox-{{ loop.index0 }}" name="taskCheckbox" value="{{ loop.index0 }}"
+                            {% if task.completed %} checked {% endif %}>
+                            <label for="taskCheckbox-{{ loop.index0 }}" class="gradient-text">{{ task.name }}</label>
+                        </form>
+                        <form method="POST" action="{{ url_for('delete_task', task_index=loop.index0) }}" style="display:inline;">
+                            <button type="submit" class="delete-btn">&times;</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="filter-container">
+                <p class="gradient-text">
+                    {% if filter_type == 'all' %}{{ total_task_count }} item{{ total_task_count > 1 and 's' or '' }} left
+                    {% elif filter_type == 'active' %}{{ active_task_count }} item{{ active_task_count > 1 and 's' or '' }} active
+                    {% elif filter_type == 'completed' %}{{ completed_task_count }} item{{ completed_task_count > 1 and 's' or '' }} completed
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('index', filter='all') }}" class="{% if filter_type == 'all' %}active{% endif %} gradient-text">
+                    All 
+                </a>
+                <a href="{{ url_for('index', filter='active') }}" class="{% if filter_type == 'active' %}active{% endif %} gradient-text">
+                    Active 
+                </a>
+                <a href="{{ url_for('index', filter='completed') }}" class="{% if filter_type == 'completed' %}active{% endif %} gradient-text">
+                    Completed
+                </a>
+                <a href="{{ url_for('clear_completed') }}" class="clear-completed gradient-text">Clear Completed</a>
+            </div>     
+        </div>
+        <h6 class="drag-and-drop">Drag and drop to reorder list</h6>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggleButton = document.getElementById('theme-toggle');
+            const themeToggleIcon = document.getElementById('theme-toggle-icon');
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.classList.add(savedTheme);
+                if (savedTheme === 'dark-mode') {
+                    themeToggleIcon.classList.remove('fa-moon');
+                    themeToggleIcon.classList.add('fa-sun');
+                }
+            }
+
+            themeToggleButton.addEventListener('click', function(event) {
+                event.preventDefault(); 
+                document.body.classList.toggle('dark-mode');
+                
+                if (document.body.classList.contains('dark-mode')) {
+                    themeToggleIcon.classList.remove('fa-moon');
+                    themeToggleIcon.classList.add('fa-sun');
+                    localStorage.setItem('theme', 'dark-mode');
+                } else {
+                    themeToggleIcon.classList.remove('fa-sun');
+                    themeToggleIcon.classList.add('fa-moon');
+                    localStorage.setItem('theme', 'light-mode');
+                }
+            });
+
+            const checkboxes = document.querySelectorAll('.checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const taskIndex = checkbox.value;
+                    const form = checkbox.closest('form');
+                    form.submit();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
